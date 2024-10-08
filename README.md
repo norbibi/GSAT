@@ -6,7 +6,7 @@
 
 GSAT allows you to converse with anyone regardless of their language.  
 It runs on top of Golem Network and works with the usual chat tools like Dicord, Teams, Duo, ...  
-This software is available on Linux, Windows and Mac.  
+This software is available on Linux and Windows (Mac support coming soon).  
 
 Supported languages:  
 
