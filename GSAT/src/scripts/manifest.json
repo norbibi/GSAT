@@ -1,0 +1,37 @@
+{
+  "version": "0.1.0",
+  "createdAt": "2024-09-29T00:00:00.123+02:00",
+  "expiresAt": "2025-09-29T00:00:00.123+02:00",
+  "metadata": {
+    "name": "gsai",
+    "version": "1.0.0"
+  },
+  "payload": [
+    {
+      "platform": {
+        "os": "linux",
+        "arch": "x86_64"
+      },
+      "urls": [
+        "https://registry.golem.network/v1/image/download?tag=maugnorbert/gsat:6&https=true"
+      ]
+    }
+  ],
+  "compManifest": {
+    "version": "0.1.0",
+    "net": {
+      "inet": {
+        "out": {
+          "urls": [
+              "https://github.com",
+              "https://huggingface.co",
+              "https://cdn-lfs.huggingface.co",
+              "https://cdn-lfs-us-1.huggingface.co",
+              "https://cdn-lfs-us-1.hf.co"
+            ],
+          "protocols": ["https"]
+        }
+      }
+    }
+  }
+}

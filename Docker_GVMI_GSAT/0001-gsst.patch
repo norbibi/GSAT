@@ -1,0 +1,192 @@
+From cbf4ccda8846645d5c29197c68f3e3b78249c679 Mon Sep 17 00:00:00 2001
+From: Norbert Mauger <norbert.mauger.private@gmail.com>
+Date: Sat, 14 Sep 2024 11:33:52 +0200
+Subject: gsst
+
+---
+ .../src/StreamingInterface.tsx                | 51 +++++++++++++------
+ streaming-react-app/src/URLParams.ts          |  4 ++
+ .../src/createBufferedSpeechPlayer.ts         | 13 +++++
+ .../src/types/URLParamsTypes.ts               |  2 +
+ 4 files changed, 54 insertions(+), 16 deletions(-)
+
+diff --git a/streaming-react-app/src/StreamingInterface.tsx b/streaming-react-app/src/StreamingInterface.tsx
+index 38fecf1..461f3bf 100644
+--- a/streaming-react-app/src/StreamingInterface.tsx
++++ b/streaming-react-app/src/StreamingInterface.tsx
+@@ -73,16 +73,29 @@ const AUDIO_STREAM_DEFAULTS = {
+   },
+ } as const;
+ 
+-async function requestUserMediaAudioStream(
++async function requestUserMediaAudioStream(VirtualPortState,
+   config: BrowserAudioStreamConfig = AUDIO_STREAM_DEFAULTS['userMedia'],
+ ) {
+-  const stream = await navigator.mediaDevices.getUserMedia({
+-    audio: {...config, channelCount: 1},
+-  });
+-  console.debug(
+-    '[requestUserMediaAudioStream] stream created with settings:',
+-    stream.getAudioTracks()?.[0]?.getSettings(),
+-  );
++  let stream ;
++
++  console.log('requestUserMediaAudioStream, VirtualPortState = ', VirtualPortState);
++
++  if(VirtualPortState.VirtualPort == "Golem_Virtual_Microphone") {
++    const devs = await navigator.mediaDevices.enumerateDevices();
++    const audioInputs = devs.filter(device => device.label == "Golem_Virtual_Microphone");
++    const deviceId = audioInputs[0].deviceId;
++    stream = await navigator.mediaDevices.getUserMedia({
++      audio: {...config, channelCount: 1, deviceId: { exact: deviceId}},
++    });
++  }
++  else {
++    stream = await navigator.mediaDevices.getUserMedia({
++      audio: {...config, channelCount: 1},
++    });
++  }
++
++  console.debug('[requestUserMediaAudioStream] stream created with settings:', stream.getAudioTracks()?.[0]?.getSettings());
++
+   return stream;
+ }
+ 
+@@ -123,10 +136,14 @@ export const TYPING_ANIMATION_DELAY_MS = 6;
+ export default function StreamingInterface() {
+   const urlParams = getURLParams();
+   const debugParam = urlParams.debug;
++  const VirtualPort = urlParams.VirtualPort;
++  const TargetLanguage = urlParams.TargetLanguage;
+   const [animateTextDisplay, setAnimateTextDisplay] = useState<boolean>(
+     urlParams.animateTextDisplay,
+   );
+ 
++  const [VirtualPortState, setVirtualPortState] = useState<string | null>(VirtualPort);
++
+   const socketObject = useSocket();
+   const {socket, clientID} = socketObject;
+ 
+@@ -165,10 +182,8 @@ export default function StreamingInterface() {
+   >(null);
+ 
+   // Dynamic Params:
+-  const [targetLang, setTargetLang] = useState<string | null>(null);
+-  const [enableExpressive, setEnableExpressive] = useState<boolean | null>(
+-    null,
+-  );
++  const [targetLang, setTargetLang] = useState<string | null>(TargetLanguage);
++  const [enableExpressive, setEnableExpressive] = useState<boolean | null>(true);
+ 
+   const [serverDebugFlag, setServerDebugFlag] = useState<boolean>(
+     debugParam ?? false,
+@@ -208,6 +223,7 @@ export default function StreamingInterface() {
+ 
+   const bufferedSpeechPlayer = useStable(() => {
+     const player = createBufferedSpeechPlayer({
++      VirtualPortState,
+       onStarted: () => {
+         console.debug('📢 PLAYBACK STARTED 📢');
+       },
+@@ -248,10 +264,10 @@ export default function StreamingInterface() {
+   const setAgentAndUpdateParams = useCallback(
+     (newAgent: AgentCapabilities | null) => {
+       setAgent((prevAgent) => {
+-        if (prevAgent?.name !== newAgent?.name) {
+-          setTargetLang(newAgent?.targetLangs[0] ?? null);
+-          setEnableExpressive(null);
+-        }
++        //if (prevAgent?.name !== newAgent?.name) {
++        //  setTargetLang(newAgent?.targetLangs[0] ?? null);
++        //  setEnableExpressive(null);
++        //}
+         return newAgent;
+       });
+     },
+@@ -350,6 +366,7 @@ export default function StreamingInterface() {
+     try {
+       if (inputSource === 'userMedia') {
+         stream = await requestUserMediaAudioStream({
++          VirtualPort: VirtualPortState,
+           noiseSuppression:
+             enableNoiseSuppression ??
+             AUDIO_STREAM_DEFAULTS['userMedia'].noiseSuppression,
+@@ -1063,6 +1080,7 @@ export default function StreamingInterface() {
+                     {streamingStatus === 'stopped' ? (
+                       <Button
+                         variant="contained"
++                        id="startStreaming"
+                         onClick={startStreaming}
+                         disabled={
+                           roomID == null ||
+@@ -1081,6 +1099,7 @@ export default function StreamingInterface() {
+                         disabled={
+                           streamingStatus === 'starting' || roomID == null
+                         }
++                        id="stopStreaming"
+                         onClick={stopStreaming}>
+                         {buttonLabelMap[streamingStatus]}
+                       </Button>
+diff --git a/streaming-react-app/src/URLParams.ts b/streaming-react-app/src/URLParams.ts
+index 8c66072..47a2006 100644
+--- a/streaming-react-app/src/URLParams.ts
++++ b/streaming-react-app/src/URLParams.ts
+@@ -46,5 +46,9 @@ export function getURLParams(): URLParamsObject {
+     // lines = each line is a separate block and animates
+     // lines_with_background = adds a panel behind lines
+     ARTranscriptionType: getStringParamFlag('ARTranscriptionType') || 'lines',
++
++    // "Golem_Virtual_Microphone" or "Golem_Virtual_Speaker"
++    VirtualPort: getStringParamFlag('VirtualPort'),
++    TargetLanguage: getStringParamFlag('TargetLanguage'),
+   };
+ }
+diff --git a/streaming-react-app/src/createBufferedSpeechPlayer.ts b/streaming-react-app/src/createBufferedSpeechPlayer.ts
+index 5ef2c5b..b55af78 100644
+--- a/streaming-react-app/src/createBufferedSpeechPlayer.ts
++++ b/streaming-react-app/src/createBufferedSpeechPlayer.ts
+@@ -13,15 +13,28 @@ export type BufferedSpeechPlayer = {
+ };
+ 
+ type Options = {
++  VirtualPortState;
+   onEnded?: () => void;
+   onStarted?: () => void;
+ };
+ 
+ export default function createBufferedSpeechPlayer({
++  VirtualPortState,
+   onStarted,
+   onEnded,
+ }: Options): BufferedSpeechPlayer {
+   const audioContext = new AudioContext();
++
++  if(VirtualPortState == "Golem_Virtual_Speaker") {
++    navigator.mediaDevices.enumerateDevices().then(devices => {
++      const audioOutputs = devices.filter(device => device.label == "Golem_Virtual_Speaker");
++      const deviceId = audioOutputs[0].deviceId;
++      audioContext.setSinkId(deviceId);
++    });
++  }
++
++  console.log(audioContext);
++
+   const gainNode = audioContext.createGain();
+   gainNode.connect(audioContext.destination);
+ 
+diff --git a/streaming-react-app/src/types/URLParamsTypes.ts b/streaming-react-app/src/types/URLParamsTypes.ts
+index da5d23f..233edfa 100644
+--- a/streaming-react-app/src/types/URLParamsTypes.ts
++++ b/streaming-react-app/src/types/URLParamsTypes.ts
+@@ -4,6 +4,8 @@ export type URLParamsObject = {
+   debug: boolean;
+   enableServerLock: boolean;
+   roomID: string | null;
++  VirtualPort: string | null;
++  TargetLanguage: string | null;
+   serverURL: string | null;
+   skipARIntro: boolean;
+   ARTranscriptionType:
+-- 
+2.25.1
+

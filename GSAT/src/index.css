@@ -1,0 +1,147 @@
+body {
+	margin: auto;
+	padding: 0px;
+}
+
+.main {
+	display: flex!important;
+}
+
+.panel {
+	width: 1002px;
+}
+
+.card-body {
+	padding-top: 8px!important;
+	padding-bottom: 8px!important;
+}
+
+.card {
+	height: 100%!important;
+	--bs-card-border-radius: 0px!important;
+}
+
+.monospace {
+	font-family: monospace, monospace!important;
+}
+
+.center {
+	display: flex!important;
+	justify-content: space-evenly!important;
+	align-items: center!important;
+}
+
+.centerb {
+	display: flex!important;
+	justify-content: flex-end!important;
+	align-items: center!important;
+}
+
+.centerc {
+	display: flex!important;
+	justify-content: flex-end!important;
+	align-items: center!important;
+	align-content: center;
+}
+
+.centerd {
+	display: flex!important;
+	justify-content: flex-end!important;
+	align-items: center!important;
+	align-content: flex-start;
+}
+
+.timer {
+	width: 250px!important;
+}
+
+.fontsmall {
+	font-size: .875em!important;
+}
+
+.fontx {
+	font-size: 1.2em!important;
+}
+
+.fonty {
+	font-size: 2em!important;
+}
+
+.borderg {
+	border: groove;
+}
+
+.row-no-margin {
+	margin-left: 0px!important;
+	margin-right: 0px!important;
+}
+
+.black {
+	color: black!important;
+}
+
+.blue {
+	color: blue!important;
+}
+
+.red {
+	color: red!important;
+}
+
+.ft-color {
+	color: var(--bs-secondary-color)!important;
+}
+
+.flex {
+	display: flex!important;
+}
+
+.my-spinner-border {
+	border-right-width: 1px!important;
+	border-top-width: 2px!important;
+	border-left-width: 3px!important;
+	border-bottom-width: 4px!important;
+	margin-right: 10px!important;
+}
+
+.my-status {
+	display: flex!important;
+	justify-content: space-around!important;
+}
+
+.scr1 {
+	height: 225px!important;
+}
+
+.scr2 {
+	height: 125px!important;
+	padding-right: 250px!important;
+}
+
+.lg {
+	background-color: lightgray!important;
+}
+
+.tal {
+	text-align: left!important;
+}
+
+.tar {
+	text-align: right!important;
+}
+
+.form-control:focus {
+	border-color: var(--bs-border-color)!important;
+	box-shadow: none!important;
+}
+  
+.form-select:focus {
+	border-color: var(--bs-border-color)!important;
+	box-shadow: none!important;
+}
+
+.prevent-select {
+	-webkit-user-select: none!important; /* Safari */
+	-ms-user-select: none!important; /* IE 10 and IE 11 */
+	user-select: none!important; /* Standard syntax */
+}
