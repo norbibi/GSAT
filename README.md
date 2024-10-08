@@ -53,8 +53,10 @@ Once started, select languages wanted for you and your interlocutor, wait for pr
 The full duplex translation will be operational when the timer is launched and will stop when it expires or when you click on the stop button.  
 You can now use the Golem_Speaker/Golem_Microphone (Linux) or CABLE_IN/CABLE_OUT (Windows) virtual audio devices in your favorite chat application.  
   
-<p align="center">
-<img src="screenshots/Discord_audio_config.png" width="70%"> 
+<p>
+  <img src="screenshots/discord_linux_audio_config.png" width="49%"">
+&nbsp; 
+  <img src="screenshots/discord_windows_audio_config.png" width="49%">
 </p>
   
 **Optional parameters can be passed to the application:**  
