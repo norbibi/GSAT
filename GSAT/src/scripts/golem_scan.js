@@ -6,6 +6,28 @@ addAsarToLookupPaths();
 const { GolemNetwork } = require('@golem-sdk/golem-js');
 const { takeUntil, timer, toArray } = require('rxjs');
 const { parentPort, workerData, isMainThread } = require('worker_threads');
+const { sha3_256 } = require('js-sha3');
+const LZString = require('lz-string');
+const _ = require('lodash');
+
+const neededUrls = [
+  {
+    "domain": "github.com",
+    "match": "strict"
+  },
+  {
+    "domain": "huggingface.co",
+    "match": "strict"
+  },
+  {
+    "domain": "^cdn-lfs[a-z0-9-]*\\.huggingface\\.co$",
+    "match": "regex"
+  },
+  {
+    "domain": "cdn-lfs-us-1.hf.co",
+    "match": "strict"
+  }
+];
 
 function getGpuMemory(offer) {
 	return offer.properties["golem.!exp.gap-35.v1.inf.gpu.d0.memory.total.gib"]?offer.properties["golem.!exp.gap-35.v1.inf.gpu.d0.memory.total.gib"]:offer.properties["golem.!exp.gap-35.v1.inf.gpu.memory.total.gib"];
@@ -57,11 +79,26 @@ async function scan(network, subnet, timeoutSecond, minCpuThreads, minMemGib, mi
       next: async (offersFound) => {
         const displayProposals = (await Promise.all(
           offersFound.map(async (offer) => {
+            const hasImageInCache = offer.properties['golem.inf.images']?offer.properties['golem.inf.images'].includes(sha3_256(imageHash)):false;
+            let outboundEnabled = offer.properties['golem.inf.outbound.enabled']?offer.properties['golem.inf.outbound.enabled']:false;
+            let outboundEveryone = offer.properties['golem.inf.outbound.everyone'];
+            let networkConfigOk = false;
+            if(outboundEnabled && ['all', 'whitelist'].includes(outboundEveryone)) {
+              let whitelist = ( offer.properties['golem.inf.outbound.whitelist'] != undefined)?
+                                JSON.parse(LZString.decompressFromBase64(offer.properties['golem.inf.outbound.whitelist']))["patterns"]:
+                                [];
+              if(whitelist.length != 0) {
+                networkConfigOk = neededUrls.every((el) => {
+                  return _.find(whitelist, el);
+                });  
+              }
+            }
+
             const gpuMemory = getGpuMemory(offer);
             return fetch(`https://api.stats.golem.network/v2/provider/node/${offer.provider.id}`)
             .then((response) => {return response.json()})
             .then(function(json) {
-              const decision = ((json[0].online) && !(json[0].computing_now) && (gpuMemory > minGpuMemGib))
+              const decision = ((json[0].online) && !(json[0].computing_now) && networkConfigOk && (gpuMemory > minGpuMemGib))
               if(decision) {
                 const providerName = offer.provider.name;
                 const providerId = offer.provider.id;
@@ -84,7 +121,8 @@ async function scan(network, subnet, timeoutSecond, minCpuThreads, minMemGib, mi
                   cpuThreads: cpuThreads,
                   storageGib: storageGib,
                   gpuModel: gpuModel,
-                  gpuMemory: gpuMemory
+                  gpuMemory: gpuMemory,
+                  hasImageInCache: hasImageInCache
                 }
               }
             })

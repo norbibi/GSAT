@@ -1,0 +1,90 @@
+diff --git a/runtime/Cargo.toml b/runtime/Cargo.toml
+index faca75b..ee46d5f 100755
+--- a/runtime/Cargo.toml
++++ b/runtime/Cargo.toml
+@@ -46,6 +46,9 @@ tokio = { version = "1.21.2", features = ["fs", "io-std", "io-util", "macros", "
+ tokio-byteorder = "0.3"
+ uuid = { version = "1.1", features = ["v4"] }
+ url = "2.3"
++sha3 = "0.8.2"
++secp256k1 = "0.27.0"
++lz-str = "0.2.1"
+ 
+ [dev-dependencies]
+ env_logger = "0.10"
+diff --git a/runtime/src/lib.rs b/runtime/src/lib.rs
+index 158c508..305d160 100755
+--- a/runtime/src/lib.rs
++++ b/runtime/src/lib.rs
+@@ -20,6 +20,9 @@ use tokio::{
+     io::{self, AsyncWriteExt},
+ };
+ use url::Url;
++use sha3::{Digest};
++use secp256k1::{Message};
++use serde_json::{Value};
+ 
+ use crate::{
+     cpu::CpuInfo,
+@@ -378,6 +381,40 @@ fn offer(self_test_result: serde_json::Value) -> anyhow::Result<serde_json::Valu
+         cpu.model.stepping, cpu.model.family, cpu.model.model
+     );
+ 
++    let home_dir = std::env::home_dir();
++    let mut ya_provider_dir = PathBuf::from(home_dir.unwrap());
++    ya_provider_dir.push(PathBuf::from(".local/share/ya-provider"));
++
++    let mut images: Vec<_> = vec![];
++
++    let mut cache_dir = PathBuf::from(ya_provider_dir.clone());
++    cache_dir.push(PathBuf::from("exe-unit/cache"));
++    let cache_content = std::fs::read_dir(cache_dir).unwrap();
++
++    for file in cache_content {
++        let file = file?;
++        let path = file.path();
++        if !path.is_dir() {
++            let file_string = file.file_name().to_string_lossy().into_owned();
++            let res: Vec<String> = file_string.split("_").map(|s| s.to_string()).collect();
++            if res.len() == 2 {
++                let hash = sha3::Sha3_256::digest(res[1].clone().as_bytes());
++                let msg = Message::from_slice(hash.as_slice())?;
++                images.push(msg.to_string());
++            }
++        }
++    }
++
++    let mut rules_path = PathBuf::from(ya_provider_dir.clone());
++    rules_path.push(PathBuf::from("rules.json"));
++    let rules_content = std::fs::read_to_string(rules_path);
++    let rules: Value = serde_json::from_str(&rules_content?).unwrap();
++
++    let mut whitelist_path = PathBuf::from(ya_provider_dir);
++    whitelist_path.push(PathBuf::from("domain_whitelist.json"));
++    let whitelist_content = std::fs::read_to_string(whitelist_path);
++    let whitelist = lz_str::compress_to_base64(&whitelist_content?);
++
+     let mut runtime_capabilities = vec!["inet", "vpn", "manifest-support", "start-entrypoint"];
+ 
+     let mut offer_template = serde_json::json!({
+@@ -386,6 +423,9 @@ fn offer(self_test_result: serde_json::Value) -> anyhow::Result<serde_json::Valu
+             "golem.inf.cpu.brand": cpu.model.brand,
+             "golem.inf.cpu.model": model,
+             "golem.inf.cpu.capabilities": cpu.capabilities,
++            "golem.inf.outbound.enabled": rules["outbound"]["enabled"],
++            "golem.inf.outbound.everyone": rules["outbound"]["everyone"],
++            "golem.inf.images": images,
+         },
+         "constraints": ""
+     });
+@@ -400,6 +440,10 @@ fn offer(self_test_result: serde_json::Value) -> anyhow::Result<serde_json::Valu
+         runtime_capabilities.push("!exp:gpu");
+     }
+ 
++    if (rules["outbound"]["enabled"] == true) && (rules["outbound"]["everyone"] == "whitelist") {
++        properties.insert("golem.inf.outbound.whitelist".into(), serde_json::Value::String(whitelist));
++    }
++
+     properties.insert(
+         "golem.runtime.capabilities".into(),
+         serde_json::json!(runtime_capabilities),

@@ -88,14 +88,16 @@ const Slider = ({ sliderValue, setSliderValue, sstIsStarted, maxSliderValue, set
 	);
 }
 
-const Provider = ({ providerId, setProviderId, pricedProviders, sstIsStarted }) => {
+const Provider = ({ provider, setProvider, pricedProviders, sstIsStarted }) => {
 	const handleProviderIdChange = (event) => {
-		setProviderId(event.target.value);
+		let lprovider = findProviderById(pricedProviders, event.target.value)
+		if(lprovider)
+			setProvider(lprovider);
 	};
 
 	useEffect(() => {
-		if((!providerId) && (pricedProviders.length != 0))
-			setProviderId(pricedProviders[0].providerId);
+		if((provider == undefined) && (pricedProviders.length > 0))
+			setProvider(pricedProviders[0]);
 	}, [pricedProviders]);
 
 	return (
@@ -115,11 +117,10 @@ export const Main = () => {
 	const [sstIsStarted, setSstIsStarted] = useState(false);
 	const [sstIsStopping, setSstIsStopping] = useState(false);
 	const [providers, setProviders] = useState([]);
-	const [providerId, setProviderId] = useState();
 	const [provider, setProvider] = useState();
-	const [abortIfMustBeDownloaded, setAbortIfMustBeDownloaded] = useState(false);
+	const [allowProviderToDownloadImages, setAllowProviderToDownloadImages] = useState(false);
 	const [downloadPrice, setDownloadPrice] = useState();
-	const [messageDownloadPrice, setMessageDownloadPrice] = useState('Abort if image must be downloaded (~20mn)');
+	const [messageDownloadPrice, setMessageDownloadPrice] = useState('Allow image download if needed');
 	const [pricedProviders, setPricedProviders] = useState([]);
 	const [sliderValue, setSliderValue] = useState(10*MINUTE_IN_HOUR);
 	const { totalSeconds, seconds, minutes, hours, days, start, pause, restart } = useTimer({
@@ -207,38 +208,34 @@ export const Main = () => {
 		scannedProviders.then((res) => setProviders(res));
 
 	useEffect(() => {
-		let lprovider = findProviderById(pricedProviders, providerId);
-		if(lprovider)
-			setProvider(lprovider);
-	}, [pricedProviders, providerId]);
-
-	useEffect(() => {
 		if(providers.length == 0)
 			setStatus('Scanning providers');
 	}, [providers]);
-
-	useEffect(() => {
-		if(provider != undefined) {
-			let lMaxSliderValue = Math.trunc(((GlmBalance - (abortIfMustBeDownloaded?0:((provider.priceWithDownload - provider.priceWithoutDownload))) - provider.priceStart)/(provider.priceCpuPerHour + provider.priceEnvPerHour) - MAX_DEPLOY_TIME_IN_MINUTES*MINUTE_IN_HOUR)/(MINUTE_IN_HOUR*SLIDER_UNIT))*MINUTE_IN_HOUR*SLIDER_UNIT;
-			setMaxSliderValue(lMaxSliderValue.toFixed(2));
-		}
-	}, [GlmBalance, provider, abortIfMustBeDownloaded]);
 
 	useEffect(() => {
 		if(!sstIsStarted) {
 			let res = [];
 			let ipad;
 			providers.forEach((provider) => {
-				provider.priceWithDownload = getLeasePrice(totalSeconds + MAX_DOWNLOAD_TIME_IN_MINUTES*60 + MAX_DEPLOY_TIME_IN_MINUTES*60, provider.priceStart, provider.priceCpuPerHour, provider.priceEnvPerHour);
-				provider.priceWithoutDownload = getLeasePrice(totalSeconds + MAX_DEPLOY_TIME_IN_MINUTES*60, provider.priceStart, provider.priceCpuPerHour, provider.priceEnvPerHour);
-				(provider.priceWithoutDownload >= 10) ? ipad = 20 : ipad = 21;
-				provider.providerDisplayName = formatName(provider.providerName, ipad);
-				res.push(provider);
+				if(allowProviderToDownloadImages || (!allowProviderToDownloadImages && provider.hasImageInCache)) {
+					provider.priceWithDownload = getLeasePrice(totalSeconds + MAX_DOWNLOAD_TIME_IN_MINUTES*60 + MAX_DEPLOY_TIME_IN_MINUTES*60, provider.priceStart, provider.priceCpuPerHour, provider.priceEnvPerHour);
+					provider.priceWithoutDownload = getLeasePrice(totalSeconds + MAX_DEPLOY_TIME_IN_MINUTES*60, provider.priceStart, provider.priceCpuPerHour, provider.priceEnvPerHour);
+					(provider.priceWithoutDownload >= 10) ? ipad = 20 : ipad = 21;
+					provider.providerDisplayName = formatName(provider.providerName, ipad);
+					res.push(provider);
+				}
 			});
 			res = res.sort((a, b) => (a.priceWithoutDownload - b.priceWithoutDownload || a.providerName.localeCompare(b.providerName)));
 			setPricedProviders(res);
 		}
 	}, [providers, totalSeconds]);
+
+	useEffect(() => {
+		if(provider != undefined) {
+			let lMaxSliderValue = Math.trunc(((GlmBalance - (allowProviderToDownloadImages?0:((provider.priceWithDownload - provider.priceWithoutDownload))) - provider.priceStart)/(provider.priceCpuPerHour + provider.priceEnvPerHour) - MAX_DEPLOY_TIME_IN_MINUTES*MINUTE_IN_HOUR)/(MINUTE_IN_HOUR*SLIDER_UNIT))*MINUTE_IN_HOUR*SLIDER_UNIT;
+			setMaxSliderValue(lMaxSliderValue.toFixed(2));
+		}
+	}, [GlmBalance, provider]);
 
 	useEffect(() => {
 		restart(getExpirationTime(sliderValue), false);
@@ -253,23 +250,27 @@ export const Main = () => {
 
 	useEffect(() => {
 		if(provider != undefined) {
-			setMessageDownloadPrice(
-				<div>
-					<span>Abort if image must be downloaded (~20mn, </span>
-					<span className="blue">+{downloadPrice} GLM</span>
-					<span>)</span>
-				</div>
-			);
+			if(!provider.hasImageInCache)
+				setMessageDownloadPrice(
+					<div>
+						<span>Allow image download if needed (</span>
+						<span className="red">~20mn</span>,&nbsp; 
+						<span className="red">+{downloadPrice} GLM</span>
+						<span>)</span>
+					</div>
+				);
+			else
+				setMessageDownloadPrice(<div><span>Allow image download if needed</span></div>);	
 		}
 	}, [provider, downloadPrice]);
 
 	const startSst = () => {
 		setStatus('Signing agreement');
 		setSstIsStarted(true);
-		let startupTimeout = abortIfMustBeDownloaded ? MAX_DEPLOY_TIME_IN_MINUTES : (MAX_DOWNLOAD_TIME_IN_MINUTES + MAX_DEPLOY_TIME_IN_MINUTES);
+		let startupTimeout = allowProviderToDownloadImages ? MAX_DEPLOY_TIME_IN_MINUTES : (MAX_DOWNLOAD_TIME_IN_MINUTES + MAX_DEPLOY_TIME_IN_MINUTES);
 		window.electronAPI.sst(	startupTimeout,
                             totalSeconds/60,
-                            providerId,
+                            provider.providerId,
                             provider.priceStart,
                             provider.priceCpuPerHour,
                             provider.priceEnvPerHour,
@@ -285,8 +286,11 @@ export const Main = () => {
 		setStatus('Shutting down');
 	}
 
-	const handleAbortIfMustBeDownloadedChange = () => {
-		setAbortIfMustBeDownloaded(!abortIfMustBeDownloaded);	
+	const handleallowProviderToDownloadImagesChange = () => {
+		setAllowProviderToDownloadImages(!allowProviderToDownloadImages);
+		setProviders([]);
+		setProvider();
+		setMessageDownloadPrice('Allow image download if needed');
 	};
 
 	return (	
@@ -322,7 +326,7 @@ export const Main = () => {
 									<Form>
 										<Row>
 											<Col xl="3" className="tar">
-												<Button variant="dark" className="mx-2 px-1 py-0" onClick={startSst} disabled={sstIsStarted || (((providers.length != 0) && (provider != undefined))?((abortIfMustBeDownloaded?provider.priceWithoutDownload:provider.priceWithDownload) > GlmBalance):true)}>
+												<Button variant="dark" className="mx-2 px-1 py-0" onClick={startSst} disabled={sstIsStarted || (((providers.length != 0) && (provider != undefined))?((allowProviderToDownloadImages?provider.priceWithoutDownload:provider.priceWithDownload) > GlmBalance):true)}>
 													<Play size={60}/>
 												</Button>
 											</Col>
@@ -368,12 +372,12 @@ export const Main = () => {
 										<Form.Group as={Row} className="mb-3">
 											<Form.Label column="true" xl={4}>Name</Form.Label>
 											<Col column="true" xl={8}>
-												<Provider providerId={providerId} setProviderId={setProviderId} pricedProviders={pricedProviders} sstIsStarted={sstIsStarted} />
+												<Provider provider={provider} setProvider={setProvider} pricedProviders={pricedProviders} sstIsStarted={sstIsStarted} />
 											</Col>
 										</Form.Group>
 										<Form.Group as={Row} className="mb-3">
 											<Col column="true" xl={12}>
-												<Form.Check type="checkbox" label={messageDownloadPrice} value={abortIfMustBeDownloaded} onChange={handleAbortIfMustBeDownloadedChange}/>
+												<Form.Check type="checkbox" label={messageDownloadPrice} value={allowProviderToDownloadImages} onChange={handleallowProviderToDownloadImagesChange}/>
 											</Col>	
 										</Form.Group>
 									</Form>

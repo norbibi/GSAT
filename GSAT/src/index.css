@@ -145,3 +145,8 @@ body {
 	-ms-user-select: none!important; /* IE 10 and IE 11 */
 	user-select: none!important; /* Standard syntax */
 }
+
+.form-check-input:checked {
+    background-color: #dc3545!important;
+    border-color: #dc3545!important;
+}
