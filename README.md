@@ -6,7 +6,7 @@
 
 GSAT allows you to converse with anyone regardless of their language.  
 It runs on top of Golem Network and works with the usual chat tools like Discord, Teams, Duo, ...  
-This software is available on Linux and Windows (Mac support coming soon).  
+This software is available on Linux and Windows.  
 
 Supported languages:  
 
@@ -21,7 +21,7 @@ Meta's model Seamless Expressive aims to preserve the subtleties of discourse su
 ## Requirements  
  - **Yagna requestor**  
      - ***Install Yagna***  
-          - Linux/Mac:  
+          - Linux:  
                ```
                curl -sSf https://join.golem.network/as-requestor | bash -
                echo 'export PATH="$HOME/.local/bin:$PATH"' >> $HOME/.bashrc
@@ -34,7 +34,7 @@ Meta's model Seamless Expressive aims to preserve the subtleties of discourse su
      - ***Create app-key*** (only once in a new terminal): ```yagna app-key create requestor```
      - ***Request test tokens*** (only for holesky network): ```yagna payment fund```
  - **Audio virtual devices**
-     - Linux/Mac:
+     - Linux:
             pulseaudio package with pactl utility
      - Windows:
             VB-CABLE driver https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack43.zip  
