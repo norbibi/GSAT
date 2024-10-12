@@ -414,7 +414,7 @@ export const Main = () => {
 												</Col>
 												<Col column="true" xl={6} className="center borderg">
 													<Col column="true" xl={3}>
-														<Form.Label column="true" xl={3} className="flex"><b>{(network == 'polygon')?'MATIC':'ETH'}</b></Form.Label>
+														<Form.Label column="true" xl={3} className="flex"><b>{(network == 'polygon')?'POL':'ETH'}</b></Form.Label>
 													</Col>
 													<Col column="true" xl={3}>
 														<Form.Text className={mainTokenFlag?"red":"blue"}>{mainTokenBalance}</Form.Text>
