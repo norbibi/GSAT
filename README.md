@@ -18,7 +18,7 @@ Supported languages:
 This application is based on Meta's Seamless Communication AI models.  
 Meta's model Seamless Expressive aims to preserve the subtleties of discourse such as pauses and speaking rate in addition to vocal style and emotional tone.  
 
-## Requirements  
+## Requirements:  
  - **Yagna requestor**  
      - ***Install Yagna***  
           - Linux:  
