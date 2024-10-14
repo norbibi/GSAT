@@ -19,25 +19,12 @@ This application is based on Meta's Seamless Communication AI models.
 Meta's model Seamless Expressive aims to preserve the subtleties of discourse such as pauses and speaking rate in addition to vocal style and emotional tone.  
 
 ## Requirements:  
- - **Yagna requestor**  
-     - ***Install Yagna***  
-          - Linux:  
-               ```
-               curl -sSf https://join.golem.network/as-requestor | bash -
-               echo 'export PATH="$HOME/.local/bin:$PATH"' >> $HOME/.bashrc
-               ```
-         - Windows:  
-           Download the latest requestor package from https://github.com/golemfactory/yagna/releases/latest.  
-           Extract content somewhere on your system.  
-           Add extraction folder to your system PATH environment variable.  
-     - ***Start Yagna*** (in terminal): ```yagna service run```
-     - ***Create app-key*** (only once in a new terminal): ```yagna app-key create requestor```
-     - ***Request test tokens*** (only for holesky network): ```yagna payment fund```
+ - **Golem Requestor**  
+     - Linux: https://github.com/norbibi/Linux_Golem_Requestor_Installer  
+     - Windows: https://github.com/norbibi/Windows_Golem_Requestor_Installer  
  - **Audio virtual devices**
-     - Linux:
-            pulseaudio package with pactl utility
-     - Windows:
-            VB-CABLE driver https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack43.zip  
+     - Linux: ```apt-get install pulseaudio-utils```
+     - Windows: https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack43.zip  
   
 ## How to use:  
 This software is in portable version, so, just download the zip archive corresponding to your architecture and extract it somewhere on your system.  
