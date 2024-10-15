@@ -34,8 +34,20 @@ This software is in portable version, so, just download the zip archive correspo
 The binary file to launch is called GSAT(.exe).
     
 :exclamation: **Use of the Seamless Expressive model is licensed.**  
-So it is necessary to register on Huggingface and request access to the model https://huggingface.co/facebook/seamless-expressive  
-Once approved, create an access token and add it to your environment with HF_TOKEN variable.  
+So it is necessary to register on Huggingface, request access to the model and create an access token once approved.  
+https://huggingface.co/facebook/seamless-expressive  
+https://huggingface.co/settings/tokens  
+  
+<p align="center">
+  <img src="screenshots/seamless_expressive_hf.png" width="59%"> 
+</p>
+
+<p align="center">
+  <img src="screenshots/hf_access_tokens.png" width="39%"">
+</p>
+  
+
+and add it to your environment with HF_TOKEN variable.  
 Without this token, the application will run correctly but the voices will be generic and monotonic.  
   
 Echo cancellation has been disabled for performance purposes, so configure your system to use headset.  
@@ -46,7 +58,7 @@ You can now use the Golem_Speaker/Golem_Microphone (Linux) or CABLE_IN/CABLE_OUT
 <p>
   <img src="screenshots/discord_linux_audio_config.png" width="49%"">
 &nbsp; 
-  <img src="screenshots/discord_windows_audio_config.png" width="49%">
+  <img src="screenshots/discord_windows_audio_config.png" width="40%">
 </p>
   
 **Optional parameters can be passed to the application:**  
