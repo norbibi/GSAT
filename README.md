@@ -64,17 +64,20 @@ You can now use the Golem_Speaker/Golem_Microphone (Linux) or CABLE_IN/CABLE_OUT
 &nbsp; 
   <img src="screenshots/discord_windows_audio_config.png" width="49%">
 </p>
-  
-**Optional parameters can be passed to the application:**  
- - ***subnet***: default public, related to Golem Network.  
- - ***network***: default polygon, can be holesky.  
- - ***logLevel***: default none, can be child, debug, info, warn, error.  
- - ***hfToken***: will be used instead of environment variable if passed here.  
- - ***dbg***: switch to enable debug mode (show hidden window, enable SSH to provider, loopback from microphone to speaker).
-  
-Examples:
- - Linux: ```./GSAI --dbg --subnet=my_subnet --network=holesky --logLevel=debug --hfToken=my_token```  
- - Windows: ```GSAI.exe --dbg --subnet=my_subnet --network=holesky --logLevel=debug --hfToken=my_token```  
+
+><details>
+><summary><b>Optional parameters</b></summary>
+>
+> - ***subnet***: default public, related to Golem Network.  
+> - ***network***: default polygon, can be holesky.  
+> - ***logLevel***: default none, can be child, debug, info, warn, error.  
+> - ***hfToken***: will be used instead of environment variable if passed here.  
+> - ***dbg***: switch to enable debug mode (show hidden window, enable SSH to provider, loopback from microphone to speaker).
+>  
+>Examples:
+> - Linux: ```./GSAI --dbg --subnet=my_subnet --network=holesky --logLevel=debug --hfToken=my_token```  
+> - Windows: ```GSAI.exe --dbg --subnet=my_subnet --network=holesky --logLevel=debug --hfToken=my_token```  
+</details>
   
 <details>
 <summary><h2>How it works</h2></summary>
