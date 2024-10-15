@@ -18,15 +18,18 @@ Supported languages:
 This application is based on Meta's Seamless Communication AI models.  
 Meta's model Seamless Expressive aims to preserve the subtleties of discourse such as pauses and speaking rate in addition to vocal style and emotional tone.  
 
-## Requirements:  
+<details>
+<summary><h2>Requirements</h2></summary>
+
  - **Golem Requestor**  
      - Linux: https://github.com/norbibi/Linux_Golem_Requestor_Installer  
      - Windows: https://github.com/norbibi/Windows_Golem_Requestor_Installer  
  - **Audio virtual devices**
      - Linux: ```apt-get install pulseaudio-utils```
      - Windows: https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack43.zip  
+</details>
   
-## How to use:  
+## How to use  
 This software is in portable version, so, just download the zip archive corresponding to your architecture and extract it somewhere on your system.  
 The binary file to launch is called GSAT(.exe).
     
@@ -57,15 +60,18 @@ Examples:
  - Linux: ```./GSAI --dbg --subnet=my_subnet --network=holesky --logLevel=debug --hfToken=my_token```  
  - Windows: ```GSAI.exe --dbg --subnet=my_subnet --network=holesky --logLevel=debug --hfToken=my_token```  
   
-## How it works:  
-
+<details>
+<summary><h2>How it works</h2></summary>
 <p align="center">
 <img src="screenshots/gsai_hiw.png" width="100%"> 
 </p>
+</details>
   
-## (Optional) How to build:  
-  
+<details>
+<summary><h2>Build application (only dev)</h2></summary>
+
 Build application process requires Node.js.
+     
 ```
 git clone https://github.com/norbibi/GSAT.git  
 cd GSAT/GSAT  
@@ -73,14 +79,18 @@ npm ci
 npm run make -- --platform win32
 npm run make -- --platform linux
 ``` 
+</details>
 
-## (Optional) Build GVMI image:  
-  
+<details>
+<summary><h2>Build GVMI image (only dev)</h2></summary>
+
 Build GVMI process requires Docker and Python3 (gvmkit-build package).  
-Uploading the image to the Golem registry (https://registry.golem.network) requires registration and creation of a repository.
+Uploading image to Golem registry (https://registry.golem.network) requires registration and repository creation.
+     
 ```
 git clone https://github.com/norbibi/GSAT.git  
 cd GSAT  
 docker build -t docker_gvmi_gsat:latest Docker_GVMI_GSAT  
 gvmkit-build docker_gvmi_gsat --push-to [YOUR_USERNAME]/[YOUR_REPOSITORY]:[VERSION] --upload-chunk-size 30000000 --upload-workers 16
-```
+``` 
+</details>
