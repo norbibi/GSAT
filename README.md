@@ -55,7 +55,7 @@ Add generated token to your environment with HF_TOKEN variable.
 Without this token, the application will run correctly but the voices will be generic and monotonic.  
   
 Echo cancellation has been disabled for performance purposes, so configure your system to use headset.  
-Once started, select languages wanted for you and your interlocutor, wait for providers scan then select one, adjust duration and click on start button.  
+Once started, select the languages ​​for you and your interlocutor, wait for the scan to find providers then select one, adjust the duration and click the start button.  
 The full duplex translation will be operational when the timer is launched and will stop when it expires or when you click on the stop button.  
 You can now use the Golem_Speaker/Golem_Microphone (Linux) or CABLE_IN/CABLE_OUT (Windows) virtual audio devices in your favorite chat application.  
   
