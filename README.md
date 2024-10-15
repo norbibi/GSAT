@@ -28,26 +28,30 @@ Meta's model Seamless Expressive aims to preserve the subtleties of discourse su
      - Linux: ```apt-get install pulseaudio-utils```
      - Windows: https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack43.zip  
 </details>
-  
+
 ## How to use  
-This software is in portable version, so, just download the zip archive corresponding to your architecture and extract it somewhere on your system.  
+This software is in portable version, so, just download the zip archive for your system and extract it.  
 The binary file to launch is called GSAT(.exe).
     
 :exclamation: **Use of the Seamless Expressive model is licensed.**  
-So it is necessary to register on Huggingface, request access to the model and create an access token once approved.  
-https://huggingface.co/facebook/seamless-expressive  
-https://huggingface.co/settings/tokens  
-  
-<p align="center">
-  <img src="screenshots/seamless_expressive_hf.png" width="59%"> 
-</p>
 
-<p align="center">
-  <img src="screenshots/hf_access_tokens.png" width="39%"">
-</p>
-  
+><details>
+><summary><b>How to get access (token)</b></summary>
+>
+>Sign in/up on Huggingface then request access to the model https://huggingface.co/facebook/seamless-expressive  
+>  
+><p align="center">
+>  <img src="screenshots/seamless_expressive_hf.png" width="100%"> 
+></p>
+>  
+>Once approved (email notification), create an access token https://huggingface.co/settings/tokens  
+>  
+><p align="center">
+>  <img src="screenshots/hf_access_tokens.png" width="100%"">
+></p>
+></details>
 
-and add it to your environment with HF_TOKEN variable.  
+Now add your token to your environment with HF_TOKEN variable.  
 Without this token, the application will run correctly but the voices will be generic and monotonic.  
   
 Echo cancellation has been disabled for performance purposes, so configure your system to use headset.  
@@ -78,7 +82,7 @@ Examples:
 <img src="screenshots/gsai_hiw.png" width="100%"> 
 </p>
 </details>
-  
+
 <details>
 <summary><h2>Build application (only dev)</h2></summary>
 
