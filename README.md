@@ -36,7 +36,7 @@ The binary file to launch is called GSAT(.exe).
 :exclamation: **Use of the Seamless Expressive model is licensed.**  
 
 ><details>
-><summary><b>How to get access (token)</b></summary>
+><summary><b>How to get access (generate token)</b></summary>
 >
 >Sign in/up on Huggingface then request access to the model https://huggingface.co/facebook/seamless-expressive  
 >  
@@ -51,7 +51,7 @@ The binary file to launch is called GSAT(.exe).
 ></p>
 ></details>
 
-Now add your token to your environment with HF_TOKEN variable.  
+Add generated token to your environment with HF_TOKEN variable.  
 Without this token, the application will run correctly but the voices will be generic and monotonic.  
   
 Echo cancellation has been disabled for performance purposes, so configure your system to use headset.  
