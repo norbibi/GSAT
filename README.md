@@ -62,7 +62,7 @@ You can now use the Golem_Speaker/Golem_Microphone (Linux) or CABLE_IN/CABLE_OUT
 <p>
   <img src="screenshots/discord_linux_audio_config.png" width="49%"">
 &nbsp; 
-  <img src="screenshots/discord_windows_audio_config.png" width="40%">
+  <img src="screenshots/discord_windows_audio_config.png" width="49%">
 </p>
   
 **Optional parameters can be passed to the application:**  
